@@ -49,3 +49,11 @@ test('Can access restricted routes with jwt', async () => {
 
 	expect(res.text).to.equal(`goodbye ${user.email}`);
 });
+
+test('can modify minJwtIat', async () => {
+	const res = await actingAs(user, {type: 'put', route: '/auth/minJwtIat'})
+		.send({date: new Date().toISOString()});
+
+	expect(res.body).to.haveOwnProperty('minJwtIat');
+});
+

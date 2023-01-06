@@ -1,4 +1,4 @@
-import { body } from 'express-validator';
+import { body, matchedData } from 'express-validator';
 import { asyncWrapper } from '@cdellacqua/express-async-wrapper';
 import { Router } from 'express';
 import { validationMiddleware } from '../../http/validation';
@@ -38,11 +38,14 @@ r.delete('/', authMiddleware, asyncWrapper(async (req, res) => {
 
 r.put('/minJwtIat', authMiddleware, [
 	body('date').isISO8601(),
+	validationMiddleware(),
 ], asyncWrapper(async (req, res) => {
-	const { minJwtIat } = await UserService.update(res.locals.user.id, {
+	const validated = matchedData(req);
+	await UserService.update(res.locals.user.id, {
 		minJwtIat: new Date(req.body.date),
 	});
+
 	res.json({
-		minJwtIat,
+		minJwtIat: validated.date,
 	});
 }));
