@@ -6,3 +6,6 @@ _update_: I figured some benefits MongoDB provides, however, It doesn't seem as 
 
 this is a fork from my [express-ts-template](https://github.com/shalior/express-ts-template)
 
+### Guide?
+
+- Read the tests and UserService
