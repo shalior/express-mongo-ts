@@ -36,6 +36,19 @@ async function create(saveUser: SaveUser): Promise<WithId<User>| null> {
 	return find(result.insertedId);
 }
 
+async function update(id: ObjectId, user: Partial<SaveUser>) {
+	const result = await db.collection<User>('users')
+		.updateOne({ _id: id }, {
+			$set: {
+				...user,
+				updatedAt: new Date(),
+				passwordHash: user.password ? await bcrypt.hash(user.password, 10) : undefined,
+			},
+		});
+
+	return result.modifiedCount === 1;
+}
+
 async function del(id: ObjectId): Promise<boolean> {
 	const result = await db.collection<User>('users').deleteOne({
 		_id: id,
@@ -81,6 +94,7 @@ function generateAuthResponse(user: User): AuthResponse {
 export default {
 	find,
 	create,
+	update,
 	del,
 	login,
 	checkPassword,
