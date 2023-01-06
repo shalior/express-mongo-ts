@@ -1,10 +1,7 @@
-/* eslint-disable import/first */
-// eslint-disable-next-line
-const knexfile = require('../../knexfile.js');
+import { MongoClient } from 'mongodb';
 
-import { knex } from 'knex';
-import config from '../config';
+const uri = 'mongodb://root:example@mongo:27017';
+export const client = new MongoClient(uri);
 
-const knexInstance = knex(knexfile[config.environment]);
-
-export default knexInstance;
+const db = client.db('app');
+export default db;
