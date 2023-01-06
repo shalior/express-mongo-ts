@@ -1,7 +1,7 @@
 import { SerializableError } from '@cdellacqua/serializable-error';
 import pg from 'pg';
 import BigNumber from 'bignumber.js';
-import knex from '../db';
+import { client } from '../db';
 import config from '../config';
 import logger from '../log/logger';
 import server from '../server';
@@ -64,8 +64,7 @@ export async function stop(): Promise<void> {
 	}
 
 	logger.info('Closing DB connection...');
-	await knex.destroy()
-		.catch((err) => logger.error(err));
+	await client.close();
 
 	logger.info('Graceful shutdown completed');
 }
