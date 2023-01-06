@@ -1,7 +1,8 @@
+/* eslint-disable no-underscore-dangle */
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import { toString } from 'express-validator/src/utils';
-import knexInstance from '../db';
+import { ObjectId, WithId } from 'mongodb';
+import db from '../db';
 import config from '../config';
 import { SaveUser, User } from './types/UserType';
 import { UserResource } from '../http/Resources/UserResource';
@@ -17,68 +18,30 @@ export interface AuthResponse {
 	user: UserResource,
 }
 
-export const tableName = 'users';
-
-export const cols = {
-	id: 'id',
-	email: 'email',
-	passwordHash: 'passwordHash',
-	enabled: 'enabled',
-	minJwtIat: 'minJwtIat',
-	createdAt: 'createdAt',
-	updatedAt: 'updatedAt',
-};
-
-async function find(filters: Partial<User> | number): Promise<User | undefined> {
-	return knexInstance<User>(tableName)
-		.where(typeof filters === 'object' ? filters : { id: filters })
-		.select('*')
-		.first();
+async function find(filters: Partial<User>|ObjectId): Promise<WithId<User>| null> {
+	return db.collection<User>('users').findOne(
+		filters,
+	);
 }
 
-async function findAll(filters?: Partial<User>): Promise<User[]> {
-	const users = await knexInstance<User>(tableName)
-		.orderBy('createdAt', 'desc')
-		.modify((queryBuilder) => {
-			if (filters) {
-				queryBuilder.where(filters);
-			}
-		})
-		.select('*');
+async function create(saveUser: SaveUser): Promise<WithId<User>| null> {
+	const result = await db.collection<User>('users').insertOne({
+		...saveUser,
+		// _id: id, // random id,
+		passwordHash: await bcrypt.hash(saveUser.password, 10),
+		createdAt: new Date(),
+		updatedAt: new Date(),
+	}).then((result) => result);
 
-	return Promise.all(users.map(UserResource.from));
+	return find(result.insertedId);
 }
 
-async function create(saveUser: SaveUser): Promise<User> {
-	return knexInstance<User>(tableName)
-		.insert({
-			email: saveUser?.email?.toLowerCase(),
-			passwordHash: await bcrypt.hash(saveUser.password, 10),
-			enabled: saveUser.enabled,
-			minJwtIat: saveUser.minJwtIat,
-		}, '*')
-		.returning('*')
-		.then((rows) => rows[0]);
-}
+async function del(id: ObjectId): Promise<boolean> {
+	const result = await db.collection<User>('users').deleteOne({
+		_id: id,
+	});
 
-async function update(id: string, user: Partial<SaveUser>) {
-	const result = await knexInstance<User>(tableName)
-		.where('id', id)
-		.update({
-			email: user.email?.toLowerCase(),
-			passwordHash: user.password && await bcrypt.hash(user.password, 10),
-			enabled: user.enabled,
-			minJwtIat: user.minJwtIat,
-			updatedAt: new Date(),
-		}, ['*']);
-
-	return result[0];
-}
-
-async function del(id: number): Promise<void> {
-	await knexInstance<User>(tableName)
-		.where('id', id)
-		.delete();
+	return result.deletedCount === 1;
 }
 
 async function login({ email, password }: LoginParams): Promise<AuthResponse | null> {
@@ -96,7 +59,7 @@ async function login({ email, password }: LoginParams): Promise<AuthResponse | n
 	return generateAuthResponse(user);
 }
 
-function checkPassword(id: number, password: string): Promise<boolean> {
+function checkPassword(id: ObjectId, password: string): Promise<boolean> {
 	return find(id)
 		.then((user) => bcrypt.compare(password, user?.passwordHash ?? ''));
 }
@@ -104,7 +67,7 @@ function checkPassword(id: number, password: string): Promise<boolean> {
 function createJwt(user: User): string {
 	return jwt.sign({}, config.secret, {
 		expiresIn: config.authentication.tokenExpirationSeconds,
-		subject: toString(user.id),
+		subject: user._id?.toString() ?? '',
 	});
 }
 
@@ -117,9 +80,7 @@ function generateAuthResponse(user: User): AuthResponse {
 
 export default {
 	find,
-	findAll,
 	create,
-	update,
 	del,
 	login,
 	checkPassword,
