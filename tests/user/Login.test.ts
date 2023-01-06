@@ -6,6 +6,7 @@ import {User} from "../../src/services/types/UserType";
 import {HttpStatus} from '../../src/http/status';
 import {actingAs, Request} from '../TestCase';
 import UserFactory from '../../src/db/factories/UserFactory';
+import { ObjectId } from 'mongodb';
 
 chai.use(chaiHttp);
 
@@ -18,7 +19,7 @@ before(async () => {
 });
 
 after(async () => {
-	await UserService.del(user.id);
+	await UserService.del(new ObjectId(user._id));
 });
 
 test('user receives jwt token after login', async () => {

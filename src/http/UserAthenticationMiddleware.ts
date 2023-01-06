@@ -1,6 +1,7 @@
 import { SerializableError } from '@cdellacqua/serializable-error';
 import jwt from 'jsonwebtoken';
 import { asyncWrapper } from '@cdellacqua/express-async-wrapper';
+import { ObjectId } from 'mongodb';
 import { HttpError } from './error';
 import config from '../config';
 import UserService from '../services/UserService';
@@ -9,6 +10,8 @@ import { HttpStatus } from './status';
 // TODO: customize your authorization logic
 const middleware = asyncWrapper(async (req, res, next) => {
 	if (!req.headers.authorization) {
+		console.log('no authorization header');
+
 		throw new HttpError(HttpStatus.Unauthorized, 'unauthorized', undefined);
 	}
 	let decoded;
@@ -20,7 +23,7 @@ const middleware = asyncWrapper(async (req, res, next) => {
 	if (!decoded) {
 		throw new HttpError(HttpStatus.Unauthorized, 'unauthorized', new SerializableError('jwt decode returned a falsy value'));
 	}
-	const user = await UserService.find(Number(decoded.sub));
+	const user = await UserService.find(new ObjectId(decoded.sub));
 	if (!user) {
 		throw new HttpError(HttpStatus.Unauthorized, 'unauthorized', new SerializableError('jwt refers to a missing user'));
 	}
