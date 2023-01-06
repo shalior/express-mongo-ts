@@ -4,7 +4,6 @@
   "description": "",
   "main": "build/index.js",
   "scripts": {
-    "knex": "node -r dotenv/config node_modules/.bin/knex",
     "test": "cross-env NODE_ENV=test TS_NODE_FILES=false TS_NODE_TRANSPILE_ONLY=true mocha 'tests/**/*.test.ts'",
     "build": "rimraf build && tsc",
     "prestart": "npm run migrate-nobuild",
@@ -12,12 +11,6 @@
     "dev": "nodemon -L .",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
-    "migrate": "npm run build && npm run knex migrate:latest",
-    "migrate-nobuild": "npm run knex migrate:latest",
-    "rollback:all": "npm run build && npm run knex migrate:rollback --all",
-    "refresh:seed": "npm run build && npm run knex migrate:rollback --all && npm run migrate && npm run knex seed:run",
-    "seed": "npm run build && npm run knex seed:run",
-    "migrate-seed": "npm run build && npm run knex migrate:latest && npm run knex seed:run",
     "setup": "node --unhandled-rejections=strict setup.js",
     "docs:build": "cd docs && tsc generate.ts --resolveJsonModule && node -r dotenv/config generate.js && cd .."
   },
@@ -69,7 +62,6 @@
     "express-validator": "^6.6.1",
     "ioredis": "^5.2.4",
     "jsonwebtoken": "^9.0.0",
-    "knex": "^2.4.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "mongodb": "4.13",
