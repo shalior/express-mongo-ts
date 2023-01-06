@@ -1,15 +1,14 @@
-import chai, {expect} from 'chai';
-import knexInstance from "../../src/db";
+import {expect} from 'chai';
+import db from "../../src/db";
+import userFactory from '../../src/db/factories/UserFactory';
 
 suite('Database connection test');
-let signedUrl: string;
 
 test('can connect to database', async () => {
-	// test knex can connect to database
-	knexInstance.raw('select 1+1 as result').then(() => {
-		expect(true).to.be.true;
-	}).catch(() => {
-		expect.fail('failed to connect to database');
+	await userFactory({
+		email: 'example@example.org'
 	});
 
+	const result = await db.collection('users').findOne({email: 'example@example.org'});
+	expect(result).to.be.an('object');
 });
