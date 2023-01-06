@@ -1,0 +1,156 @@
+#!/usr/bin/env bash
+
+# Source .env file
+if [ -f ./.env ]; then
+	source ./.env
+fi
+
+# Determine if stdout is a terminal...
+if test -t 1; then
+	# Determine if colors are supported...
+	ncolors=$(tput colors)
+
+	if test -n "$ncolors" && test "$ncolors" -ge 8; then
+		BOLD="$(tput bold)"
+		NC="$(tput sgr0)"
+	fi
+fi
+
+export APP_SERVICE=${APP_SERVICE:-"node"}
+
+function nail_is_not_running {
+	echo "${BOLD}Nail is not running.${NC}" >&2
+	exit 1
+}
+
+docker compose &>/dev/null
+if [ $? == 0 ]; then
+	DOCKER_COMPOSE=(docker compose)
+else
+	DOCKER_COMPOSE=(docker-compose)
+fi
+
+if ! docker info >/dev/null 2>&1; then
+	echo "${BOLD}Docker is not running.${NC}" >&2
+
+	exit 1
+fi
+
+EXEC="yes"
+
+ARGS=()
+
+if [ "$1" == "npm" ]; then
+	shift 1
+
+	if [ "$EXEC" == "yes" ]; then
+		ARGS+=(exec -u root)
+		[ ! -t 0 ] && ARGS+=(-T)
+		ARGS+=("$APP_SERVICE" "npm" "$@")
+	else
+		nail_is_not_running
+	fi
+
+# Proxy NPX commands to the "npx" binary on the application container...
+elif [ "$1" == "npx" ]; then
+    shift 1
+
+    if [ "$EXEC" == "yes" ]; then
+        ARGS+=(exec -u root)
+        [ ! -t 0 ] && ARGS+=(-T)
+        ARGS+=("$APP_SERVICE" npx "$@")
+    else
+        sail_is_not_running
+    fi
+
+elif [ "$1" == "knex" ]; then
+    shift 1
+
+    if [ "$EXEC" == "yes" ]; then
+        ARGS+=(exec -u root)
+        [ ! -t 0 ] && ARGS+=(-T)
+        ARGS+=("$APP_SERVICE" npm run knex "$@")
+    else
+        sail_is_not_running
+    fi
+
+elif [ "$1" == "node" ]; then
+    shift 1
+
+    if [ "$EXEC" == "yes" ]; then
+        ARGS+=(exec -u root)
+        [ ! -t 0 ] && ARGS+=(-T)
+        ARGS+=("$APP_SERVICE" "node" "$@")
+    else
+        nail_is_not_running
+    fi
+
+elif [ "$1" == "test:all" ]; then
+    shift 1
+
+    if [ "$EXEC" == "yes" ]; then
+        ARGS+=(exec -u root)
+        [ ! -t 0 ] && ARGS+=(-T)
+
+        ARGS+=("$APP_SERVICE" env HTTP_PORT="3001" HTTP_ORIGIN="http://127.0.0.1:3001" npm test "$@")
+    else
+        nail_is_not_running
+    fi
+
+elif [ "$1" == "build" ]; then
+    shift 1
+
+    if [ "$EXEC" == "yes" ]; then
+        ARGS+=(exec -u root)
+        [ ! -t 0 ] && ARGS+=(-T)
+
+        ARGS+=("$APP_SERVICE" npm run build)
+    else
+        nail_is_not_running
+    fi
+
+elif [ "$1" == "mocha" ]; then
+    shift 1
+
+    if [ "$EXEC" == "yes" ]; then
+        ARGS+=(exec -u root)
+        [ ! -t 0 ] && ARGS+=(-T)
+
+        ARGS+=("$APP_SERVICE" env HTTP_PORT="3001" HTTP_ORIGIN="http://127.0.0.1:3001" NODE_ENV=test npx mocha 'tests/**/*.test.ts' "$@")
+    else
+        nail_is_not_running
+    fi
+
+# Initiate a Bash shell within the application container...
+elif [ "$1" == "shell" ] || [ "$1" == "bash" ]; then
+    shift 1
+
+    if [ "$EXEC" == "yes" ]; then
+        ARGS+=(exec -u root)
+        [ ! -t 0 ] && ARGS+=(-T)
+        ARGS+=("$APP_SERVICE" bash "$@")
+    else
+        sail_is_not_running
+    fi
+
+    # Initiate a PostgreSQL CLI terminal session within the "pgsql" container...
+elif [ "$1" == "psql" ]; then
+    shift 1
+
+    if [ "$EXEC" == "yes" ]; then
+        ARGS+=(exec)
+        [ ! -t 0 ] && ARGS+=(-T)
+        ARGS+=(postgres bash -c)
+        ARGS+=("PGPASSWORD=\default psql -U \default \default")
+    else
+        nail_is_not_running
+    fi
+
+# Pass unknown commands to the "docker-compose" binary...
+else
+    ARGS+=("$@")
+fi
+
+# Run Docker Compose with the defined arguments...
+"${DOCKER_COMPOSE[@]}" "${ARGS[@]}"
+

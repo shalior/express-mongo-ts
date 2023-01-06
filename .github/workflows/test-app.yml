@@ -1,0 +1,40 @@
+name: Run tests
+on: [ push, pull_request ]
+jobs:
+  test:
+    name: Run tests
+    timeout-minutes: 30
+    runs-on: ubuntu-20.04
+    continue-on-error: false
+    env:
+      NODE_ENV: test
+      HTTP_HOST: localhost
+      HTTP_PORT: "3000"
+      HTTP_ORIGIN: "http://localhost:3000"
+    services:
+      database:
+        image: postgres
+        env:
+          POSTGRES_USER: default
+          POSTGRES_PASSWORD: default
+          POSTGRES_DB: testing
+        ports:
+          - "5432:5432"
+
+    steps:
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - uses: actions/checkout@v3
+
+      - name: Install modules
+        run: npm install
+
+      - name: Copy env
+        run: cp .env.example .env
+
+      - name: Run tests
+        run: npm run build && npm test
+
+
+
