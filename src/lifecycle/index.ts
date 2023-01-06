@@ -1,6 +1,4 @@
 import { SerializableError } from '@cdellacqua/serializable-error';
-import pg from 'pg';
-import BigNumber from 'bignumber.js';
 import { client } from '../db';
 import config from '../config';
 import logger from '../log/logger';
@@ -19,9 +17,6 @@ export async function start(startConfig?: SystemServices): Promise<void> {
 	}
 
 	systemServices = {};
-
-	// pg
-	pg.types.setTypeParser(pg.types.builtins.NUMERIC, (decimal: string): BigNumber => new BigNumber(decimal));
 
 	// http server
 	if (startConfig?.server) {
