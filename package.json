@@ -52,7 +52,7 @@
     "@cdellacqua/serializable-error": "^1.1.0",
     "bcryptjs": "^2.4.3",
     "bignumber.js": "^9.1.1",
-    "bullmq": "^3.10.4",
+    "bullmq": "^3.12.0",
     "cors": "^2.8.5",
     "crypto-extra": "^1.0.1",
     "dotenv": "^16.0.3",
