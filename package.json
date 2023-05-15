@@ -17,7 +17,7 @@
   "keywords": [],
   "private": true,
   "devDependencies": {
-    "@faker-js/faker": "^7.6.0",
+    "@faker-js/faker": "^8.0.0",
     "@swc/core": "^1.3.58",
     "@types/bcryptjs": "^2.4.2",
     "@types/chai": "^4.3.5",
