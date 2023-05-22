@@ -43,7 +43,7 @@
     "mocha": "^10.2.0",
     "nodemon": "^2.0",
     "redoc": "^2.0.0",
-    "rimraf": "^5.0.0",
+    "rimraf": "^5.0.1",
     "ts-node": "^10.9.0",
     "typescript": "^5.0.4"
   },
