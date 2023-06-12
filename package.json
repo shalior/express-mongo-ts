@@ -55,7 +55,7 @@
     "bullmq": "^3.13.1",
     "cors": "^2.8.5",
     "crypto-extra": "^1.0.1",
-    "dotenv": "^16.0.3",
+    "dotenv": "^16.1.4",
     "express": "^4.18.2",
     "express-paginate": "^1.0.2",
     "express-validator": "^7.0.1",
