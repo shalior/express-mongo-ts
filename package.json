@@ -39,7 +39,7 @@
     "chai-http": "^4.4.0",
     "chai-spies": "^1.0.0",
     "cross-env": "^7.0.2",
-    "eslint-config-airbnb-typescript": "^17.0.0",
+    "eslint-config-airbnb-typescript": "^17.1.0",
     "mocha": "^10.2.0",
     "nodemon": "^2.0",
     "redoc": "^2.0.0",
