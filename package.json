@@ -32,7 +32,7 @@
     "@types/node": "^20.5.9",
     "@types/nodemailer": "^6.4.10",
     "@types/pug": "^2.0.4",
-    "@types/superagent": "^4.1.18",
+    "@types/superagent": "^4.1.19",
     "@typescript-eslint/eslint-plugin": "^5.61.0",
     "@typescript-eslint/parser": "^5.61.0",
     "chai": "^4.3.10",
