@@ -24,7 +24,7 @@
     "@types/chai-spies": "^1.0.4",
     "@types/cors": "^2.8.13",
     "@types/express": "^4.17.17",
-    "@types/express-paginate": "^1.0.1",
+    "@types/express-paginate": "^1.0.2",
     "@types/jsonwebtoken": "^9.0.2",
     "@types/lodash": "^4.14.197",
     "@types/mocha": "^10.0.1",
