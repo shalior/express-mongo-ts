@@ -33,7 +33,7 @@
     "@types/nodemailer": "^6.4.10",
     "@types/pug": "^2.0.8",
     "@types/superagent": "^4.1.20",
-    "@typescript-eslint/eslint-plugin": "^5.61.0",
+    "@typescript-eslint/eslint-plugin": "^6.11.0",
     "@typescript-eslint/parser": "^5.61.0",
     "chai": "^4.3.10",
     "chai-http": "^4.4.0",
